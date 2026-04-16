@@ -2,7 +2,14 @@
   "permissions": {
     "allow": [
       "Bash(npx skills *)",
-      "Bash(npx shadcn@4.2.0 init --defaults)"
+      "Bash(npx shadcn@4.2.0 init --defaults)",
+      "Bash(pnpm add *)",
+      "Bash(pnpm check *)",
+      "mcp__svelte__svelte-autofixer",
+      "Bash(pnpm dev *)",
+      "Bash(curl -s http://localhost:5173/)",
+      "Bash(curl -v http://localhost:5173/)",
+      "Bash(curl -s http://localhost:5174/)"
     ]
   },
   "enableAllProjectMcpServers": true,
