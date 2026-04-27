@@ -54,14 +54,11 @@ function toDeviceRow(row: string[]): DeviceRow {
 
 function createClient() {
 	const clientEmail = env.GOOGLE_CLIENT_EMAIL
-	const rawKey = env.GOOGLE_PRIVATE_KEY ?? ''
+	const rawKey = (env.GOOGLE_PRIVATE_KEY ?? '').replace(/^"+|"+$/g, '')
 	const privateKey = rawKey.includes('\\n') ? rawKey.replace(/\\n/g, '\n') : rawKey
 	if (!clientEmail || !privateKey) {
 		throw new Error('Google Service Account credentials missing in .env')
 	}
-	console.log('[sheets] key prefix:', JSON.stringify(privateKey.slice(0, 60)))
-	console.log('[sheets] key suffix:', JSON.stringify(privateKey.slice(-60)))
-	console.log('[sheets] has real newlines:', privateKey.includes('\n'))
 	return new JWT({
 		email: clientEmail,
 		key: privateKey,
