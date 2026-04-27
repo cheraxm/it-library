@@ -54,7 +54,8 @@ function toDeviceRow(row: string[]): DeviceRow {
 
 function createClient() {
 	const clientEmail = env.GOOGLE_CLIENT_EMAIL
-	const privateKey = (env.GOOGLE_PRIVATE_KEY ?? '').replace(/\\n/g, '\n')
+	const rawKey = env.GOOGLE_PRIVATE_KEY ?? ''
+	const privateKey = rawKey.includes('\\n') ? rawKey.replace(/\\n/g, '\n') : rawKey
 	if (!clientEmail || !privateKey) {
 		throw new Error('Google Service Account credentials missing in .env')
 	}

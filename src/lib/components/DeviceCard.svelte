@@ -15,22 +15,29 @@
 	let loadingServices = $state(false)
 	let servicesError = $state(false)
 
-	async function toggle() {
-		expanded = !expanded
-		if (expanded && services === null && device.accessIP) {
-			loadingServices = true
-			servicesError = false
-			try {
-				const r = await fetch(`/api/services-by-ip/${encodeURIComponent(device.accessIP)}`)
-				if (!r.ok) throw new Error('Request failed')
-				services = (await r.json()) as ServiceRow[]
-			} catch {
-				servicesError = true
-			} finally {
-				loadingServices = false
-			}
+	async function fetchServices() {
+		if (services !== null || !device.accessIP) return
+		loadingServices = true
+		servicesError = false
+		try {
+			const r = await fetch(`/api/services-by-ip/${encodeURIComponent(device.accessIP)}`)
+			if (!r.ok) throw new Error('Request failed')
+			services = (await r.json()) as ServiceRow[]
+		} catch {
+			servicesError = true
+		} finally {
+			loadingServices = false
 		}
 	}
+
+	async function toggle() {
+		expanded = !expanded
+		if (expanded) await fetchServices()
+	}
+
+	$effect(() => {
+		if (expanded) fetchServices()
+	})
 </script>
 
 <article

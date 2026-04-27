@@ -3,16 +3,19 @@
 	import { page } from '$app/state'
 	import type { PageData } from './$types'
 	import type { DeviceRow } from '$lib/types'
-	import { untrack } from 'svelte'
 	import DeviceCard from '$lib/components/DeviceCard.svelte'
 	import { Search, RefreshCw, AlertCircle } from 'lucide-svelte'
 
 	let { data }: { data: PageData } = $props()
 
-	let query = $state(untrack(() => data.search))
+	let query = $state(page.url.searchParams.get('search') ?? '')
 	let typeFilter = $state('')
 	let vendorFilter = $state('')
 	let refreshing = $state(false)
+
+	// Keep input display in sync when URL search param changes externally (e.g. after clear navigation)
+	const urlSearch = $derived(page.url.searchParams.get('search') ?? '')
+	$effect(() => { query = urlSearch })
 
 	const devices: DeviceRow[] = $derived(data.devices)
 
@@ -25,7 +28,7 @@
 
 	const filtered = $derived(
 		devices.filter((d) => {
-			const q = query.toLowerCase()
+			const q = urlSearch.toLowerCase()
 			const matchText =
 				d.deviceName.toLowerCase().includes(q) ||
 				d.rackPlusName.toLowerCase().includes(q) ||
@@ -37,12 +40,16 @@
 		}),
 	)
 
-	const hasFilters = $derived(!!(query || typeFilter || vendorFilter))
+	const hasFilters = $derived(!!(urlSearch || typeFilter || vendorFilter))
 
 	function syncSearchToURL(value: string) {
 		const params = new URLSearchParams(page.url.searchParams)
-		if (value) params.set('search', value)
-		else params.delete('search')
+		if (value) {
+			params.set('search', value)
+		} else {
+			params.delete('search')
+			params.delete('expand')
+		}
 		goto(`?${params}`, { replaceState: true, noScroll: true, keepFocus: true })
 	}
 
@@ -89,6 +96,10 @@
 					placeholder="Search by name, IP, or description…"
 					value={query}
 					oninput={(e) => {
+						query = (e.currentTarget as HTMLInputElement).value
+						syncSearchToURL(query)
+					}}
+					onchange={(e) => {
 						query = (e.currentTarget as HTMLInputElement).value
 						syncSearchToURL(query)
 					}}

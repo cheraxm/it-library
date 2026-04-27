@@ -58,10 +58,17 @@
 
 		<div class="flex shrink-0 items-center gap-2">
 			{#if svc.managementIP}
-				<span class="hidden items-center gap-1 text-xs text-muted-foreground sm:flex">
+				<a
+					href="/devices?search={encodeURIComponent(svc.managementIP)}&expand={encodeURIComponent(svc.managementIP)}"
+					onclick={(e) => e.stopPropagation()}
+					title="Click to view device for {svc.managementIP}"
+					class="hidden items-center gap-1 rounded px-1.5 py-0.5 text-xs text-muted-foreground
+						transition-colors hover:bg-accent hover:text-primary sm:flex"
+				>
 					<Wifi size={11} />
 					{svc.managementIP}
-				</span>
+					<HardDrive size={10} class="opacity-50" />
+				</a>
 			{/if}
 			<StatusBadge status={svc.status} />
 			{#if expanded}
