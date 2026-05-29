@@ -27,11 +27,15 @@
 		services.filter((s) => {
 			const q = query.toLowerCase()
 			const matchText =
-				s.name.toLowerCase().includes(q) ||
-				s.typeOfService.toLowerCase().includes(q) ||
-				s.owner.toLowerCase().includes(q) ||
-				s.managementIP.toLowerCase().includes(q) ||
-				s.privateIP.toLowerCase().includes(q)
+				(s.vmName ?? '').toLowerCase().includes(q) ||
+				(s.device ?? '').toLowerCase().includes(q) ||
+				(s.domainName ?? '').toLowerCase().includes(q) ||
+				(s.typeOfService ?? '').toLowerCase().includes(q) ||
+				(s.owner ?? '').toLowerCase().includes(q) ||
+				(s.managementIP ?? '').toLowerCase().includes(q) ||
+				(s.privateIP ?? '').toLowerCase().includes(q) ||
+				(s.publicIP ?? '').toLowerCase().includes(q) ||
+				(s.user ?? '').toLowerCase().includes(q)
 			const matchType = !typeFilter || s.typeOfService === typeFilter
 			const matchStatus = !statusFilter || s.status === statusFilter
 			return matchText && matchType && matchStatus
@@ -170,7 +174,7 @@
 		</div>
 	{:else if filtered.length > 0}
 		{#each filtered as svc, i (i)}
-			<ServiceCard {svc} autoExpand={!!data.expand && svc.name === data.expand} />
+			<ServiceCard {svc} autoExpand={!!data.expand && (svc.vmName === data.expand || svc.device === data.expand)} />
 		{/each}
 	{/if}
 </section>

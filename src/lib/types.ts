@@ -1,10 +1,13 @@
 export interface ServiceRow {
+	ipChangedStatus: string
 	rack: string
+	device: string
 	deviceDetailIPType: string
 	typeOfService: string
 	managementIPVer100: string
 	managementIP: string
-	name: string
+	vmName: string
+	domainName: string
 	vlan: string
 	newVLAN: string
 	privateIP: string
@@ -13,6 +16,9 @@ export interface ServiceRow {
 	newPublicIP: string
 	status: string
 	owner: string
+	user: string
+	credentials: string
+	notes: string
 }
 
 export interface DeviceRow {

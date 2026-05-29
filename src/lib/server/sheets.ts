@@ -2,16 +2,18 @@ import { JWT } from 'google-auth-library'
 import { env } from '$env/dynamic/private'
 import type { ServiceRow, DeviceRow } from '$lib/types'
 
-const SPREADSHEET_ID = '1W-HZs-CjY8GUtoY2ZFbOchhUXxAtHMGtaR3vYBjqgFI'
-const SERVICES_RANGE = 'Services!A2:O'
+const SPREADSHEET_ID = '14fMkWVc5FtPQ3VBKOENvpU1I_fr-D3CgMZbyjSij9GY'
+const SERVICES_RANGE = 'Services!A2:T'
 const DEVICES_RANGE = 'Device!A2:Q'
 
 // ─── Column maps ──────────────────────────────────────────────────────────────
 
 const SVC = {
-	rack: 0, deviceDetailIPType: 1, typeOfService: 2, managementIPVer100: 3,
-	managementIP: 4, name: 5, vlan: 6, newVLAN: 7, privateIP: 8,
-	newPrivateIP: 9, publicIP: 10, newPublicIP: 11, status: 12, owner: 13,
+	ipChangedStatus: 0, rack: 1, device: 2, deviceDetailIPType: 3,
+	typeOfService: 4, managementIPVer100: 5, managementIP: 6,
+	vmName: 7, domainName: 8, vlan: 9, newVLAN: 10,
+	privateIP: 11, newPrivateIP: 12, publicIP: 13, newPublicIP: 14,
+	status: 15, owner: 16, user: 17, credentials: 18, notes: 19,
 }
 
 const DEV = {
@@ -26,13 +28,15 @@ const DEV = {
 function toServiceRow(row: string[]): ServiceRow {
 	const g = (i: number) => row[i] ?? ''
 	return {
-		rack: g(SVC.rack), deviceDetailIPType: g(SVC.deviceDetailIPType),
+		ipChangedStatus: g(SVC.ipChangedStatus), rack: g(SVC.rack),
+		device: g(SVC.device), deviceDetailIPType: g(SVC.deviceDetailIPType),
 		typeOfService: g(SVC.typeOfService), managementIPVer100: g(SVC.managementIPVer100),
-		managementIP: g(SVC.managementIP), name: g(SVC.name),
-		vlan: g(SVC.vlan), newVLAN: g(SVC.newVLAN),
+		managementIP: g(SVC.managementIP), vmName: g(SVC.vmName),
+		domainName: g(SVC.domainName), vlan: g(SVC.vlan), newVLAN: g(SVC.newVLAN),
 		privateIP: g(SVC.privateIP), newPrivateIP: g(SVC.newPrivateIP),
 		publicIP: g(SVC.publicIP), newPublicIP: g(SVC.newPublicIP),
 		status: g(SVC.status), owner: g(SVC.owner),
+		user: g(SVC.user), credentials: g(SVC.credentials), notes: g(SVC.notes),
 	}
 }
 
@@ -83,7 +87,7 @@ async function fetchSheet<T>(
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 export function fetchServices(): Promise<ServiceRow[]> {
-	return fetchSheet(SERVICES_RANGE, toServiceRow, (r) => r.name.trim() !== '')
+	return fetchSheet(SERVICES_RANGE, toServiceRow, (r) => r.device.trim() !== '')
 }
 
 export function fetchDevices(): Promise<DeviceRow[]> {

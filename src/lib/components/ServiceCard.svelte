@@ -4,6 +4,7 @@
 	import {
 		ChevronDown, ChevronUp, Server, Network,
 		Globe, Lock, Wifi, Hash, Tag, User, HardDrive,
+		Link, KeyRound, FileText, Monitor, AlertCircle,
 	} from 'lucide-svelte'
 
 	let { svc, autoExpand = false }: { svc: ServiceRow; autoExpand?: boolean } = $props()
@@ -12,9 +13,15 @@
 	// Once the user clicks, it overrides the prop
 	let manualExpanded = $state<boolean | null>(null)
 	const expanded = $derived(manualExpanded !== null ? manualExpanded : autoExpand)
+	let credentialsRevealed = $state(false)
+	let notesRevealed = $state(false)
 
 	function toggle() {
 		manualExpanded = !expanded
+		if (!expanded) {
+			credentialsRevealed = false
+			notesRevealed = false
+		}
 	}
 </script>
 
@@ -35,8 +42,19 @@
 				<Server size={16} />
 			</div>
 			<div class="min-w-0">
-				<p class="truncate font-semibold text-foreground">{svc.name || '(Unnamed)'}</p>
+				<p class="truncate font-semibold text-foreground">{svc.vmName || svc.device || '(Unnamed)'}</p>
+				{#if svc.domainName}
+					<p class="truncate text-xs text-muted-foreground">{svc.domainName}</p>
+				{/if}
 				<div class="mt-0.5 flex flex-wrap items-center gap-1.5">
+					{#if svc.ipChangedStatus}
+						<span
+							class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
+						>
+							<AlertCircle size={9} class="mr-1" />
+							{svc.ipChangedStatus}
+						</span>
+					{/if}
 					{#if svc.typeOfService}
 						<span
 							class="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground"
@@ -92,12 +110,28 @@
 						Service Details
 					</h3>
 					<dl class="space-y-2">
+						{#if svc.device}
+							<div class="flex items-start justify-between gap-4">
+								<dt class="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
+									<Monitor size={11} />Device
+								</dt>
+								<dd class="min-w-0 truncate text-right text-xs text-foreground">{svc.device}</dd>
+							</div>
+						{/if}
 						{#if svc.owner}
 							<div class="flex items-start justify-between gap-4">
 								<dt class="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
 									<User size={11} />Owner
 								</dt>
 								<dd class="min-w-0 truncate text-right text-xs text-foreground">{svc.owner}</dd>
+							</div>
+						{/if}
+						{#if svc.user}
+							<div class="flex items-start justify-between gap-4">
+								<dt class="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
+									<User size={11} />User
+								</dt>
+								<dd class="min-w-0 truncate text-right text-xs text-foreground">{svc.user}</dd>
 							</div>
 						{/if}
 						{#if svc.typeOfService}
@@ -130,6 +164,14 @@
 									<Hash size={11} />New VLAN
 								</dt>
 								<dd class="min-w-0 truncate text-right font-mono text-xs text-foreground">{svc.newVLAN}</dd>
+							</div>
+						{/if}
+						{#if svc.domainName}
+							<div class="flex items-start justify-between gap-4">
+								<dt class="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
+									<Link size={11} />Domain
+								</dt>
+								<dd class="min-w-0 truncate text-right font-mono text-xs text-foreground">{svc.domainName}</dd>
 							</div>
 						{/if}
 					</dl>
@@ -199,6 +241,59 @@
 					</dl>
 				</div>
 			</div>
+
+			{#if svc.credentials || svc.notes}
+				<div class="mt-4 space-y-3 border-t border-border pt-4">
+					{#if svc.credentials}
+						<div>
+							<div class="mb-1.5 flex items-center justify-between">
+								<h3 class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+									<KeyRound size={12} />Credentials
+								</h3>
+								<button
+									onclick={() => (credentialsRevealed = !credentialsRevealed)}
+									class="text-xs text-primary hover:underline"
+								>
+									{credentialsRevealed ? 'Hide' : 'I want to see credential'}
+								</button>
+							</div>
+							{#if credentialsRevealed}
+								<pre class="whitespace-pre-wrap rounded-lg bg-muted px-3 py-2 font-mono text-xs text-foreground">{svc.credentials}</pre>
+							{:else}
+								<div class="flex items-center gap-2 rounded-lg bg-muted px-3 py-2">
+									<KeyRound size={11} class="shrink-0 text-muted-foreground" />
+									<span class="select-none font-mono text-xs tracking-widest text-muted-foreground">
+										ลองเดาดูสิ รหัสอะไรน้า
+									</span>
+								</div>
+							{/if}
+						</div>
+					{/if}
+					{#if svc.notes}
+						<div>
+							<div class="mb-1.5 flex items-center justify-between">
+								<h3 class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+									<FileText size={12} />Notes
+								</h3>
+								<button
+									onclick={() => (notesRevealed = !notesRevealed)}
+									class="text-xs text-primary hover:underline"
+								>
+									{notesRevealed ? 'Hide' : 'Reveal'}
+								</button>
+							</div>
+							{#if notesRevealed}
+								<pre class="whitespace-pre-wrap rounded-lg bg-muted px-3 py-2 text-xs text-foreground">{svc.notes}</pre>
+							{:else}
+								<div class="flex items-center gap-2 rounded-lg bg-muted px-3 py-2">
+									<FileText size={11} class="shrink-0 text-muted-foreground" />
+									<span class="select-none font-mono text-xs tracking-widest text-muted-foreground">••••••••••••</span>
+								</div>
+							{/if}
+						</div>
+					{/if}
+				</div>
+			{/if}
 		</div>
 	{/if}
 </article>
